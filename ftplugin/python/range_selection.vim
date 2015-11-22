@@ -3,7 +3,7 @@ if !exists("g:delphi_range_selection")
 endif
 
 function! DelphiShowSelectedRange()
-    execute "normal! /#@s\<cr>v/#@e\<cr>Wy"
+    execute "normal! /#@s\<cr>j0v/#@e\<cr>k$y"
     echom @@ 
 endfunction
 

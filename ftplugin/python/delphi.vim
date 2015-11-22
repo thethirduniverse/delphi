@@ -3,16 +3,18 @@ if !exists("g:delphi_run")
 endif
 
 function! DelphiRun()
+    "save file first, other wise it cannot open another buffer
+    silent :w
     "yank content between #@s and #@e
-    execute "normal! /#@s\<cr>j0v/#@e\<cr>k$y"
-    "create or open helper file
-    silent :edit __delphi_snippet__
+    execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
+    "create helper file
+    :edit __delphi_snippet__
     "delete existing content
     normal! ggdG 
     "paste 
-    execute "normal! P\<cr>" 
+    execute "normal! \"aP\<cr>" 
     "write file
-    :w
+    silent :w
     "return to original buffer
     silent :bd
     ":call CloseBufIfOpen("__delphi_snippet__")

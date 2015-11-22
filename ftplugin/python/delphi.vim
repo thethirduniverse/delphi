@@ -56,4 +56,4 @@ endfunction
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
 autocmd BufEnter *.py set updatetime=300
 autocmd CursorHold *.py :call DelphiRun()
-"autocmd CursorHoldI *.py :call DelphiRun()
+autocmd CursorHoldI *.py :call DelphiRun()

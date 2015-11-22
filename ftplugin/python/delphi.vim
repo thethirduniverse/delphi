@@ -1,5 +1,7 @@
 if !exists("g:delphi_run")
     let g:delphi_run = "delphi"
+else
+    finish
 endif
 
 function! DelphiRun()
@@ -25,16 +27,11 @@ function! DelphiRun()
     "write file
     silent :w
     "return to original buffer
-    silent :bd
-    ":call CloseBufIfOpen("__delphi_snippet__")
+    :call CloseBufIfOpen("__delphi_snippet__")
     "execute helper file
-    let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500")
-    "if __delphi_show__ is opened currently, close it
-    :call CloseBufIfOpen("__delphi_show__")
-    "vertical split window
-    silent rightbelow vsplit __delphi_show__
-    "move cursor back to original buffer
-    execute "normal! \<C-w>\<C-h>"
+    "let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500")
+    :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500", 1, funcref#Function("DisplayShowWindow"))
+    
     "restore window, cursor, etc.
     "call winrestview(l:winview) 
     normal `a
@@ -42,11 +39,19 @@ function! DelphiRun()
     set filetype=python
 endfunction
 
+function! DisplayShowWindow(status, file)
+    "if __delphi_show__ is opened currently, close it
+    :call CloseBufIfOpen("__delphi_show__")
+    "vertical split window
+    silent rightbelow vsplit __delphi_show__
+    "move cursor back to original buffer
+    execute "normal! \<C-w>\<C-h>"
+endfunction
 
 "if __delpho_show__ is currently in the buffer
 "assume it is in the right window
 "close it then
-function CloseBufIfOpen(name)
+function! CloseBufIfOpen(name)
     "@http://vim.wikia.com/wiki/Easier_buffer_switching
     let bufcount = bufnr("$")
     let currbufnr = 1
@@ -66,4 +71,5 @@ nnoremap <buffer> <leader>r :call DelphiRun()<cr>
 autocmd BufEnter *.py set updatetime=800
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()
+let g:bg_use_python=1
 let g:delphi_first_run=1

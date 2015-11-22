@@ -2,29 +2,40 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 int main(int argc, char** argv){
-    if (argc != 5){
+    if (argc != 4){
         printf("Usage: %s input_file output_file time_limit\n", argv[0]);
-        //exit(1);
+        exit(1);
     }
-    //int time_limit = atoi(argv[3]);
-    int time_limit = 100000;
+    int time_limit = atoi(argv[3]) * 1000;
     int cid = fork();
 
-    printf("here\n");
-    
-    char python_command[200];
-    sprintf(python_command, "rm %s;python %s 2>%s 1>%s", argv[2], argv[1], argv[2], argv[2]);
-        
+    char* python_command[3];
+    python_command[0] = "python";
+    python_command[1] = argv[1];
+    python_command[2] = NULL;
+
+    int python_out_fd;
 
     if (cid < 0){
         printf("Fork failed\n");
         exit(1);
     }else if(cid == 0){
+        python_out_fd = open(argv[2], O_TRUNC|O_CREAT|O_WRONLY, 0755);
+        if (python_out_fd < 0){
+            printf("error opening file\n");
+            exit(1);
+        }
+        if (dup2(python_out_fd,1)<0 || dup2(python_out_fd,2)<0){
+            printf("dup error\n");
+            exit(1);
+        }
         execvp("python", (char* const*)python_command);
+        printf("end");
     }else{
-        sleep(1);
+        usleep(time_limit);
         kill(cid, SIGKILL);
     }
 }

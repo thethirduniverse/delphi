@@ -3,6 +3,12 @@ if !exists("g:delphi_run")
 endif
 
 function! DelphiRun()
+    "abandons if file is not dirty and not first time running
+    if (&modified == 0 && !g:delphi_first_run)
+        return
+    endif
+    "from now on the only way to re-execute is by modifying file
+    let g:delphi_first_run=0
     "save cursor
     normal ma
     "save file first, other wise it cannot open another buffer
@@ -59,3 +65,4 @@ nnoremap <buffer> <leader>r :call DelphiRun()<cr>
 autocmd BufEnter *.py set updatetime=400
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()
+let g:delphi_first_run=1

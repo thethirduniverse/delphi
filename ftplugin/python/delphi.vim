@@ -21,7 +21,8 @@ function! DelphiRun()
     "from @learnvimscript the hardway
     "vertical split window
     rightbelow vsplit __delphi_show__
-
+    "move cursor back to original buffer
+    execute "normal! \<C-w>\<C-h>"
 endfunction
 
 "echos current selected range

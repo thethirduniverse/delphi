@@ -3,14 +3,14 @@ if !exists("g:delphi_run")
 endif
 
 function! DelphiRun()
-    "save window, cursot, etc.
-    let l:winview = winsaveview()
+    "save cursor
+    normal ma
     "save file first, other wise it cannot open another buffer
     silent :w
     "yank content between #@s and #@e
     execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
     "create helper file
-    :edit __delphi_snippet__
+    silent :edit __delphi_snippet__
     "delete existing content
     normal! ggdG 
     "paste 
@@ -29,7 +29,7 @@ function! DelphiRun()
     "move cursor back to original buffer
     execute "normal! \<C-w>\<C-h>"
     "restore window, cursor, etc.
-    call winrestview(l:winview)
+    normal `a
     "set filetype to re-enable syntax highlighting
     set filetype=python
 endfunction
@@ -56,6 +56,6 @@ endfunction
 
 "echos current selected range
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
-autocmd BufEnter *.py set updatetime=300
+autocmd BufEnter *.py set updatetime=100
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()

@@ -21,7 +21,7 @@ function! DelphiRun()
     silent :bd
     ":call CloseBufIfOpen("__delphi_snippet__")
     "execute helper file
-    let python_output = system("rm __delphi_show__; python __delphi_snippet__ 2>__delphi_show__ 1>__delphi_show__")
+    let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ " . &updatetime)
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
     "vertical split window

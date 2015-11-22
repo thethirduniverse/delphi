@@ -33,7 +33,6 @@ int main(int argc, char** argv){
             exit(1);
         }
         execvp("python", (char* const*)python_command);
-        printf("end");
     }else{
         usleep(time_limit);
         kill(cid, SIGKILL);

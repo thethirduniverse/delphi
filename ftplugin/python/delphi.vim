@@ -30,6 +30,8 @@ function! DelphiRun()
     execute "normal! \<C-w>\<C-h>"
     "restore window, cursor, etc.
     call winrestview(l:winview)
+    "set filetype to re-enable syntax highlighting
+    set filetype=python
 endfunction
 
 

@@ -21,7 +21,7 @@ function! DelphiRun()
     silent :bd
     ":call CloseBufIfOpen("__delphi_snippet__")
     "execute helper file
-    let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ " . &updatetime)
+    let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 100")
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
     "vertical split window
@@ -56,6 +56,6 @@ endfunction
 
 "echos current selected range
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
-autocmd BufEnter *.py set updatetime=100
+autocmd BufEnter *.py set updatetime=400
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()

@@ -1,2 +1,4 @@
 #files starting with __ are considered temporary file, ignore them
 __*
+.DS_Store
+.DS_Store?

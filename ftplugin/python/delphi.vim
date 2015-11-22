@@ -3,6 +3,8 @@ if !exists("g:delphi_run")
 endif
 
 function! DelphiRun()
+    "save window, cursot, etc.
+    let l:winview = winsaveview()
     "save file first, other wise it cannot open another buffer
     silent :w
     "yank content between #@s and #@e
@@ -26,7 +28,8 @@ function! DelphiRun()
     silent rightbelow vsplit __delphi_show__
     "move cursor back to original buffer
     execute "normal! \<C-w>\<C-h>"
-
+    "restore window, cursor, etc.
+    call winrestview(l:winview)
 endfunction
 
 
@@ -51,3 +54,6 @@ endfunction
 
 "echos current selected range
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
+autocmd BufEnter *.py set updatetime=300
+autocmd CursorHold *.py :call DelphiRun()
+"autocmd CursorHoldI *.py :call DelphiRun()

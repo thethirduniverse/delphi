@@ -1,0 +1,2 @@
+#files starting with __ are considered temporary file, ignore them
+__*

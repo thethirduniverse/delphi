@@ -15,6 +15,13 @@ function! DelphiRun()
     silent :w
     "return to original buffer
     silent :bd
+    "execute helper file
+    let python_output = system("rm __delphi_show__; python __delphi_snippet__ 2>&1 1>__delphi_show__")
+    
+    "from @learnvimscript the hardway
+    "vertical split window
+    rightbelow vsplit __delphi_show__
+
 endfunction
 
 "echos current selected range

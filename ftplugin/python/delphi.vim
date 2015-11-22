@@ -10,17 +10,18 @@ function! DelphiRun()
     "from now on the only way to re-execute is by modifying file
     let g:delphi_first_run=0
     "save cursor
+    "let l:winview = winsaveview() 
     normal ma
     "save file first, other wise it cannot open another buffer
     silent :w
     "yank content between #@s and #@e
-    execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
+    silent execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
     "create helper file
     silent :edit __delphi_snippet__
     "delete existing content
     normal! ggdG 
     "paste 
-    execute "normal! \"aP\<cr>" 
+    silent execute "normal! \"aP\<cr>" 
     "write file
     silent :w
     "return to original buffer
@@ -35,6 +36,7 @@ function! DelphiRun()
     "move cursor back to original buffer
     execute "normal! \<C-w>\<C-h>"
     "restore window, cursor, etc.
+    "call winrestview(l:winview) 
     normal `a
     "set filetype to re-enable syntax highlighting
     set filetype=python
@@ -60,9 +62,8 @@ function CloseBufIfOpen(name)
     endwhile
 endfunction
 
-"echos current selected range
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
-autocmd BufEnter *.py set updatetime=400
+autocmd BufEnter *.py set updatetime=800
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()
 let g:delphi_first_run=1

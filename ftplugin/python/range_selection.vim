@@ -3,7 +3,8 @@ if !exists("g:delphi_range_selection")
 endif
 
 function! DelphiShowSelectedRange()
-    echo "Function called!"
+    execute "normal! /#@s\<cr>v/#@e\<cr>Wy"
+    echom @@ 
 endfunction
 
 

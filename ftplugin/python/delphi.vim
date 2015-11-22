@@ -11,9 +11,9 @@ function! DelphiRun()
     normal! ggdG 
     "paste 
     execute "normal! P\<cr>" 
-    "write file, return to original buffer
+    "write file
     silent :w
-    "write file, return to original buffer
+    "return to original buffer
     silent :bd
 endfunction
 

@@ -15,10 +15,13 @@ function! DelphiRun()
     "let l:winview = winsaveview() 
     normal ma
     "save file first, other wise it cannot open another buffer
-    echom "save original"
     silent :w
     "yank content between #@s and #@e
-    silent execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
+    "silent execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
+    if( YankSelectedRange() < 0 )
+        echom "delphi failed to extract correct range for execution"
+        return
+    endif
     "create helper file
     "silent :edit __delphi_snippet__
     vsp __delphi_snippet__
@@ -27,7 +30,6 @@ function! DelphiRun()
     "paste 
     silent execute "normal! \"aP\<cr>" 
     "write file
-    echom "save snippet"
     silent :w
     :bd
     ":BW
@@ -43,8 +45,24 @@ function! DelphiRun()
     set filetype=python
 endfunction
 
+"yanks the content between #@s and #@e, on success return 0, on failure return
+"-1
+function! YankSelectedRange()
+    let start = search("#@s")
+    let end = search("#@e")
+    if (start==0 || end==0)
+        return -1
+    endif
+    if (start >= end)
+        return -1
+    endif
+    "yank the file starting from start+1 to end-1
+    echom "normal! ".(start+1).",".(end-1)."y a"
+    execute ":".(start+1).",".(end-1)."y a"
+    return 0
+endfunction
+
 function! DisplayShowWindow(status, file)
-    echom "save original2"
     silent :w
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
@@ -74,7 +92,7 @@ function! CloseBufIfOpen(name)
 endfunction
 
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
-autocmd BufEnter *.py set updatetime=500
+autocmd BufEnter *.py set updatetime=1000
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()
 let g:bg_use_python=1

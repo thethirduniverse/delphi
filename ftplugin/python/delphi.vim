@@ -35,7 +35,7 @@ function! DelphiRun()
     ":call CloseBufIfOpen("__delphi_snippet__")
     "execute helper file
     "let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500")
-    :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500", 1, funcref#Function("DisplayShowWindow"))
+    :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 1000", 1, funcref#Function("DisplayShowWindow"))
     "restore window, cursor, etc.
     "call winrestview(l:winview) 
     normal `a

@@ -4,14 +4,23 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+volatile int child_id = 0;
+
+void alarm_handler(int sig){
+    kill(child_id, SIGKILL);
+    //printf("alarmed and killed");   
+    exit(1);
+}
+
 int main(int argc, char** argv){
     if (argc != 4){
         printf("Usage: %s input_file output_file time_limit\n", argv[0]);
         exit(1);
     }
+    signal(SIGALRM, alarm_handler);
+
     int time_limit = atoi(argv[3]) * 1000;
     int cid = fork();
-
     char* python_command[3];
     python_command[0] = "python";
     python_command[1] = argv[1];
@@ -34,7 +43,11 @@ int main(int argc, char** argv){
         }
         execvp("python", (char* const*)python_command);
     }else{
-        usleep(time_limit);
-        kill(cid, SIGKILL);
+        child_id = cid;
+        ualarm(time_limit, 0);
+        wait(NULL);
+        exit(0);
+        //usleep(time_limit);
+        //kill(cid, SIGKILL);
     }
 }

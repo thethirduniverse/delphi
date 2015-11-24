@@ -12,10 +12,8 @@ function! DelphiRun()
     "from now on the only way to re-execute is by modifying file
     let g:delphi_first_run=0
     "save cursor
-    "let l:winview = winsaveview() 
     normal ma
     "yank content between #@s and #@e
-    "silent execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
     if( YankSelectedRange() < 0 )
         echom "delphi failed to extract correct range for execution"
     else
@@ -28,16 +26,13 @@ function! DelphiRun()
         silent execute "normal! \"aP\<cr>" 
         "write file
         silent :w
+        "close this new split
         :bd
-        ":BW
-        "return to original buffer
-        ":call CloseBufIfOpen("__delphi_snippet__")
         "execute helper file
-        "let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500")
         :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 1000", 1, funcref#Function("DisplayShowWindow"))
-        "restore window, cursor, etc.
-        "call winrestview(l:winview) 
     endif
+    
+    "restore window, cursor, etc.
     normal `a
 endfunction
 
@@ -53,7 +48,6 @@ function! YankSelectedRange()
         return -1
     endif
     "yank the file starting from start+1 to end-1
-    echom "normal! ".(start+1).",".(end-1)."y a"
     execute ":".(start+1).",".(end-1)."y a"
     return 0
 endfunction

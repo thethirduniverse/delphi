@@ -41,8 +41,6 @@ function! DelphiRun()
         "call winrestview(l:winview) 
     endif
     normal `a
-    "set filetype to re-enable syntax highlighting
-    set filetype=python
 endfunction
 
 "yanks the content between #@s and #@e, on success return 0, on failure return

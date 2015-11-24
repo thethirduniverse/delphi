@@ -20,26 +20,26 @@ function! DelphiRun()
     "silent execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
     if( YankSelectedRange() < 0 )
         echom "delphi failed to extract correct range for execution"
-        return
+    else
+        "create helper file
+        "silent :edit __delphi_snippet__
+        vsp __delphi_snippet__
+        "delete existing content
+        normal! ggdG 
+        "paste 
+        silent execute "normal! \"aP\<cr>" 
+        "write file
+        silent :w
+        :bd
+        ":BW
+        "return to original buffer
+        ":call CloseBufIfOpen("__delphi_snippet__")
+        "execute helper file
+        "let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500")
+        :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 1000", 1, funcref#Function("DisplayShowWindow"))
+        "restore window, cursor, etc.
+        "call winrestview(l:winview) 
     endif
-    "create helper file
-    "silent :edit __delphi_snippet__
-    vsp __delphi_snippet__
-    "delete existing content
-    normal! ggdG 
-    "paste 
-    silent execute "normal! \"aP\<cr>" 
-    "write file
-    silent :w
-    :bd
-    ":BW
-    "return to original buffer
-    ":call CloseBufIfOpen("__delphi_snippet__")
-    "execute helper file
-    "let python_output = system("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 500")
-    :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 1000", 1, funcref#Function("DisplayShowWindow"))
-    "restore window, cursor, etc.
-    "call winrestview(l:winview) 
     normal `a
     "set filetype to re-enable syntax highlighting
     set filetype=python
@@ -53,7 +53,7 @@ function! YankSelectedRange()
     if (start==0 || end==0)
         return -1
     endif
-    if (start >= end)
+    if (start+1 > end-1)
         return -1
     endif
     "yank the file starting from start+1 to end-1
@@ -92,7 +92,7 @@ function! CloseBufIfOpen(name)
 endfunction
 
 nnoremap <buffer> <leader>r :call DelphiRun()<cr>
-autocmd BufEnter *.py set updatetime=1000
+autocmd BufEnter *.py set updatetime=300
 autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()
 let g:bg_use_python=1

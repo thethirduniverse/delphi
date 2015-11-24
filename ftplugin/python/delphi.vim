@@ -29,7 +29,7 @@ function! DelphiRun()
         "close this new split
         :bd
         "execute helper file
-        :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ 1000", 1, funcref#Function("DisplayShowWindow"))
+        :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
     endif
     
     "restore window, cursor, etc.
@@ -86,3 +86,4 @@ autocmd CursorHold *.py :call DelphiRun()
 autocmd CursorHoldI *.py :call DelphiRun()
 let g:bg_use_python=1
 let g:delphi_first_run=1
+let g:delphi_exec_limit=1000

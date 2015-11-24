@@ -14,8 +14,6 @@ function! DelphiRun()
     "save cursor
     "let l:winview = winsaveview() 
     normal ma
-    "save file first, other wise it cannot open another buffer
-    silent :w
     "yank content between #@s and #@e
     "silent execute "normal! /#@s\<cr>j0v/#@e\<cr>k$h\"ay"
     if( YankSelectedRange() < 0 )
@@ -61,7 +59,6 @@ function! YankSelectedRange()
 endfunction
 
 function! DisplayShowWindow(status, file)
-    silent :w
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
     "vertical split window

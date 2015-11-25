@@ -29,7 +29,9 @@ function! DelphiRun()
         "close this new split
         :bd
         "execute helper file
-        :call bg#Run("./ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
+        "not working, will always show current working directory
+        "let s:directory = expand('<sfile>:h')
+        :call bg#Run("~/.vim/bundle/delphi/ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
     endif
     
     "restore window, cursor, etc.

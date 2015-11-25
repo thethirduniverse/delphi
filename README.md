@@ -19,9 +19,20 @@ There are two ways to write python code. By using the `batch mode` and the `inte
 
 ##Demo
 
-Nothing illustrates better than a video:
-S
+Nothing illustrates better than a video.
+(The video is included in the repo, see **delphi.mp4**)
 
+---
+
+##Install
+Delphi Depends on:
+
+* [Pathogen](https://github.com/tpope/vim-pathogen)
+* [vim-addon-background-cmd](https://github.com/MarcWeber/vim-addon-background-cmd), which depends on:
+	* [vim-addon-mw-utils](https://github.com/MarcWeber/vim-addon-mw-utils)
+	* [vim-addon-manager](https://github.com/MarcWeber/vim-addon-manager)
+* A vim with **client-server** function. You can check whether it does by executing `vim --version | grep "clientserver"`, if it gives you something like `+clientserver` then you are good to go. If you see `-clientserver`, then you might have to install another version.
+	* on Mac OS you can use homebrew.
 ___
 
 ##Contribute

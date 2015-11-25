@@ -12,7 +12,8 @@ function! DelphiRun()
     "from now on the only way to re-execute is by modifying file
     let g:delphi_first_run=0
     "save cursor
-    normal ma
+    let l:winview = winsaveview()
+    "normal ma
     "yank content between #@s and #@e
     if( YankSelectedRange() < 0 )
         echom "delphi failed to extract correct range for execution"
@@ -35,7 +36,8 @@ function! DelphiRun()
     endif
     
     "restore window, cursor, etc.
-    normal `a
+    "normal `a
+    :call winrestview(l:winview)
 endfunction
 
 "yanks the content between #@s and #@e, on success return 0, on failure return

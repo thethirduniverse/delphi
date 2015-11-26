@@ -84,10 +84,24 @@ function! CloseBufIfOpen(name)
     endwhile
 endfunction
 
-nnoremap <buffer> <leader>r :call DelphiRun()<cr>
-autocmd BufEnter *.py set updatetime=300
-autocmd CursorHold *.py :call DelphiRun()
-autocmd CursorHoldI *.py :call DelphiRun()
-let g:bg_use_python=1
-let g:delphi_first_run=1
-let g:delphi_exec_limit=1000
+function! DelphiEnable()
+    nnoremap <buffer> <leader>r :call DelphiRun()<cr>
+    autocmd BufEnter *.py set updatetime=300
+    autocmd CursorHold *.py :call DelphiRun()
+    autocmd CursorHoldI *.py :call DelphiRun()
+    let g:bg_use_python=1
+    let g:delphi_first_run=1
+    let g:delphi_exec_limit=1000
+endfunction
+
+function! DelphiDisable()
+    nunmap <buffer> <leader>r
+    set eventignore=BufEnter,CursorHold,CursorHoldI
+    unlet g:bg_use_python
+    unlet g:delphi_first_run
+    unlet g:delphi_exec_limit
+endfunction
+
+function! DelphiSetExecLimit(limit)
+    let g:delphi_exec_limit = a:limit
+endfunction

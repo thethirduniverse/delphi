@@ -28,11 +28,16 @@ Nothing illustrates better than a video.
 Delphi Depends on:
 
 * [Pathogen](https://github.com/tpope/vim-pathogen)
+	* don't forget to add pathogen#infect to your vimrc	
 * [vim-addon-background-cmd](https://github.com/MarcWeber/vim-addon-background-cmd), which depends on:
 	* [vim-addon-mw-utils](https://github.com/MarcWeber/vim-addon-mw-utils)
 	* [vim-addon-manager](https://github.com/MarcWeber/vim-addon-manager)
-* A vim with **client-server** function. You can check whether it does by executing `vim --version | grep "clientserver"`, if it gives you something like `+clientserver` then you are good to go. If you see `-clientserver`, then you might have to install another version.
+		* don't forget to add corresponding scripts to your vimrc
+* A vim with **client-server** and **python** function. You can check whether it does by executing `vim --version | grep "clientserver"`, if it gives you something like `+clientserver` then you are good to go. If you see `-clientserver`, then you might have to install another version.
 	* on Mac OS you can use homebrew.
+	* on Linux you can follow [this awesome guide](https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source). Starting from the *normal* version, it will have client-server feature. Besure to manually enable python as well.
+* In your vimrc
+	
 ___
 
 ##Contribute

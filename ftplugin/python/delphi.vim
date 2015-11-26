@@ -105,3 +105,8 @@ endfunction
 function! DelphiSetExecLimit(limit)
     let g:delphi_exec_limit = a:limit
 endfunction
+
+"plugins are load after vimrc
+if exists("g:use_delphi")
+    call DelphiEnable()
+endif

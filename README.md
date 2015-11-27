@@ -19,8 +19,7 @@ There are two ways to write python code. By using the `batch mode` and the `inte
 
 ##Demo
 
-Nothing illustrates better than a video.
-(The video is included in the repo, see **delphi.mp4**)
+Nothing illustrates better than a [video] (https://www.youtube.com/watch?v=ddM0MlI0AQI).
 
 ---
 

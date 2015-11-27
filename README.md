@@ -38,6 +38,12 @@ Delphi Depends on:
 * `cd ~/.vim/bundle/` and `git https://github.com/thethirduniverse/delphi.git`
 * run `make`
 * In your vimrc, add `let g:use_delphi=1` if you want it to be always on. Otherwise enter `:call DelphiEnable()` to temporarily enable it for the current session.
+
+___
+
+##Reminder
+
+Be sure to put the code you want to execute inside **#@s** and **#@e**. These are the magic symbols!
 	
 ___
 

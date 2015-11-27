@@ -36,6 +36,7 @@ Delphi Depends on:
 	* on Mac OS you can use homebrew.
 	* on Linux you can follow [this awesome guide](https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source). Starting from the *normal* version, it will have client-server feature. Besure to manually enable python as well.
 * `cd ~/.vim/bundle/` and `git https://github.com/thethirduniverse/delphi.git`
+* run `make`
 * In your vimrc, add `let g:use_delphi=1` if you want it to be always on. Otherwise enter `:call DelphiEnable()` to temporarily enable it for the current session.
 	
 ___

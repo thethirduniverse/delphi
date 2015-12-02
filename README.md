@@ -38,6 +38,7 @@ Delphi Depends on:
 * `cd ~/.vim/bundle/` and `git https://github.com/thethirduniverse/delphi.git`
 * run `make`
 * In your vimrc, add `let g:use_delphi=1` if you want it to be always on. Otherwise enter `:call DelphiEnable()` to temporarily enable it for the current session.
+* Start your vim by adding an extra argument `--servername vim`. You can add the following line to your bashrc to automate this process: `alias vim="vim --servername vim"`
 
 ___
 

@@ -6,7 +6,7 @@ endif
 
 function! DelphiRun()
     "abandons if file is not dirty and not first time running
-    if (&modified == 0 && !g:delphi_first_run)
+    if (!g:delphi_file_dirty)
         return
     endif
     "from now on the only way to re-execute is by modifying file
@@ -33,6 +33,9 @@ function! DelphiRun()
     "restore window, cursor, etc.
     "normal `a
     :call winrestview(l:winview)
+
+    "file is no longer dirty
+    let g:delphi_file_dirty=0
 endfunction
 
 function! YankAll()
@@ -90,17 +93,23 @@ function! DelphiEnable()
     autocmd BufEnter *.py set updatetime=300
     autocmd CursorHold *.py :call DelphiRun()
     autocmd CursorHoldI *.py :call DelphiRun()
+    autocmd TextChanged *py :call DelphiMarkDirty()
+    autocmd TextChangedI *py :call DelphiMarkDirty()
     let g:bg_use_python=1
-    let g:delphi_first_run=1
     let g:delphi_exec_limit=1000
+    let g:delphi_file_dirty=1
 endfunction
 
 function! DelphiDisable()
     nunmap <buffer> <leader>r
-    set eventignore=BufEnter,CursorHold,CursorHoldI
+    set eventignore=BufEnter,CursorHold,CursorHoldI,TextChanged,TextChangedI
     unlet g:bg_use_python
-    unlet g:delphi_first_run
+    unlet g:file_dirty
     unlet g:delphi_exec_limit
+endfunction
+
+function! DelphiMarkDirty()
+    let g:delphi_file_dirty=1
 endfunction
 
 function! DelphiSetExecLimit(limit)

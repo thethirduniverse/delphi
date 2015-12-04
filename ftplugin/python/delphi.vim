@@ -13,48 +13,49 @@ function! DelphiRun()
     let g:delphi_first_run=0
     "save cursor
     let l:winview = winsaveview()
-    "normal ma
-    "yank content between #@s and #@e
-    if( YankSelectedRange() < 0 )
-        echom "delphi failed to extract correct range for execution"
-    else
-        "create helper file
-        "silent :edit __delphi_snippet__
-        vsp __delphi_snippet__
-        "delete existing content
-        normal! ggdG 
-        "paste 
-        silent execute "normal! \"aP\<cr>" 
-        "write file
-        silent :w
-        "close this new split
-        :bd
-        "execute helper file
-        "not working, will always show current working directory
-        "let s:directory = expand('<sfile>:h')
-        :call bg#Run("~/.vim/bundle/delphi/ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
-    endif
+    :call YankAll()
+    "create helper file
+    "silent :edit __delphi_snippet__
+    vsp __delphi_snippet__
+    "delete existing content
+    normal! ggdG 
+    "paste 
+    silent execute "normal! \"aP\<cr>" 
+    "write file
+    silent :w
+    "close this new split
+    :bd
+    "execute helper file
+    "not working, will always show current working directory
+    "let s:directory = expand('<sfile>:h')
+    :call bg#Run("~/.vim/bundle/delphi/ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
     
     "restore window, cursor, etc.
     "normal `a
     :call winrestview(l:winview)
 endfunction
 
+function! YankAll()
+    let lastLine = line('$')
+    execute ":1,".lastLine."y a"
+endfunction
+
+
 "yanks the content between #@s and #@e, on success return 0, on failure return
 "-1
-function! YankSelectedRange()
-    let start = search("#@s")
-    let end = search("#@e")
-    if (start==0 || end==0)
-        return -1
-    endif
-    if (start+1 > end-1)
-        return -1
-    endif
-    "yank the file starting from start+1 to end-1
-    execute ":".(start+1).",".(end-1)."y a"
-    return 0
-endfunction
+"function! YankSelectedRange()
+"    let start = search("#@s")
+"    let end = search("#@e")
+"    if (start==0 || end==0)
+"        return -1
+"    endif
+"    if (start+1 > end-1)
+"        return -1
+"    endif
+"    "yank the file starting from start+1 to end-1
+"    execute ":".(start+1).",".(end-1)."y a"
+"    return 0
+"endfunction
 
 function! DisplayShowWindow(status, file)
     "if __delphi_show__ is opened currently, close it

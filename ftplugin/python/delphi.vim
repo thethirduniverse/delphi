@@ -132,14 +132,14 @@ function! DelphiTimedExecution()
 from multiprocessing import Process
 import time, os, signal, sys
 
-outfile = None
+delphi_outfile = None
 
 def terminate(signum, frame):
     #vim.eval(":call displayshowwindow()")
-    global outfile
-    if outfile:
-        outfile.close()
-        outfile = None
+    global delphi_outfile
+    if delphi_outfile:
+        delphi_outfile.close()
+        delphi_outfile = None
     os.system("vim --servername \"vim1\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
     os._exit(0)
 
@@ -147,10 +147,10 @@ def delphi_exec():
     #redirect output
     signal.signal(signal.SIGALRM, terminate)
     signal.alarm(1)
-    global outfile
-    outfile = open("__delphi_show__","w+")
-    sys.stdout = outfile
-    sys.stderr = outfile
+    global delphi_outfile
+    delphi_outfile = open("__delphi_show__","w+")
+    sys.stdout = delphi_outfile
+    sys.stderr = delphi_outfile
     #evalutate the command in current thread
     cmd = open("__delphi_snippet__","r").read()
     try:
@@ -159,8 +159,7 @@ def delphi_exec():
         print e.message
     terminate(signal.SIGALRM, None)
 
-p = Process(target=delphi_exec,args=())
-p.start()
+Process(target=delphi_exec,args=()).start()
 EOF
 endfunction
 

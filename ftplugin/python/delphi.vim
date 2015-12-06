@@ -156,12 +156,11 @@ def delphi_exec():
     try:
         exec(cmd)
     except Exception as e:
-        sys.stderr.write(e.message)
+        print e.message
     terminate(signal.SIGALRM, None)
 
 p = Process(target=delphi_exec,args=())
 p.start()
-
 EOF
 endfunction
 

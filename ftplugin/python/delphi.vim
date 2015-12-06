@@ -102,8 +102,43 @@ function! DelphiEnable()
     autocmd TextChanged *py :call DelphiMarkDirty()
     autocmd TextChangedI *py :call DelphiMarkDirty()
     let g:bg_use_python=1
-    let g:delphi_exec_limit=3000
+    let g:delphi_exec_limit=1000
     let g:delphi_file_dirty=1
+    py << EOF
+from multiprocessing import Process
+import time, os, signal, sys, vim
+
+delphi_servername = vim.eval("v:servername")
+delphi_exec_limit = int(vim.eval("g:delphi_exec_limit"))
+delphi_outfile = None
+
+def terminate(signum, frame):
+    #vim.eval(":call displayshowwindow()")
+    global delphi_outfile
+    global delphi_servername
+    if delphi_outfile:
+        delphi_outfile.close()
+        delphi_outfile = None
+    os.system("vim --servername \"" + delphi_servername + "\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
+    os._exit(0)
+
+def delphi_exec():
+    global delphi_outfile
+    global delphi_exec_limit
+    #redirect output
+    signal.signal(signal.SIGALRM, terminate)
+    signal.alarm(delphi_exec_limit / 1000)
+    delphi_outfile = open("__delphi_show__","w+")
+    sys.stdout = delphi_outfile
+    sys.stderr = delphi_outfile
+    #evalutate the command in current thread
+    cmd = open("__delphi_snippet__","r").read()
+    try:
+        exec(cmd)
+    except Exception as e:
+        print e
+    terminate(signal.SIGALRM, None)
+EOF
 endfunction
 
 
@@ -129,37 +164,8 @@ endfunction
 "the result
 function! DelphiTimedExecution()
     py << EOF
-from multiprocessing import Process
-import time, os, signal, sys
-
-delphi_outfile = None
-
-def terminate(signum, frame):
-    #vim.eval(":call displayshowwindow()")
-    global delphi_outfile
-    if delphi_outfile:
-        delphi_outfile.close()
-        delphi_outfile = None
-    os.system("vim --servername \"vim1\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
-    os._exit(0)
-
-def delphi_exec():
-    #redirect output
-    signal.signal(signal.SIGALRM, terminate)
-    signal.alarm(1)
-    global delphi_outfile
-    delphi_outfile = open("__delphi_show__","w+")
-    sys.stdout = delphi_outfile
-    sys.stderr = delphi_outfile
-    #evalutate the command in current thread
-    cmd = open("__delphi_snippet__","r").read()
-    try:
-        exec(cmd)
-    except Exception as e:
-        print e.message
-    terminate(signal.SIGALRM, None)
-
-Process(target=delphi_exec,args=()).start()
+p = Process(target=delphi_exec,args=())
+p.start()
 EOF
 endfunction
 

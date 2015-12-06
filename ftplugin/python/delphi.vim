@@ -164,8 +164,7 @@ endfunction
 "the result
 function! DelphiTimedExecution()
     py << EOF
-p = Process(target=delphi_exec,args=())
-p.start()
+Process(target=delphi_exec,args=()).start()
 EOF
 endfunction
 

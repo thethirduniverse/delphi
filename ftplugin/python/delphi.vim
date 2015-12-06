@@ -9,33 +9,24 @@ function! DelphiRun()
     if (!g:delphi_file_dirty)
         return
     endif
-    "from now on the only way to re-execute is by modifying file
-    let g:delphi_first_run=0
-    "save cursor
+    "save cursor and window info
     let l:winview = winsaveview()
+    "yank all content to register a
     :call YankAll()
     "create helper file
-    "silent :edit __delphi_snippet__
     vsp __delphi_snippet__
     "delete existing content
     normal! ggdG 
-    "paste 
+    "paste to helper file
     silent execute "normal! \"aP\<cr>" 
     "write file
     silent :w
     "close this new split
     :bd
     "execute helper file
-    "not working, will always show current working directory
-    "let s:directory = expand('<sfile>:h')
-    ":call bg#Run("~/.vim/bundle/delphi/ftplugin/python/delehi_timed_execution.o __delphi_snippet__ __delphi_show__ 
-    ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
     :call DelphiTimedExecution() 
-    
     "restore window, cursor, etc.
-    "normal `a
     :call winrestview(l:winview)
-
     "file is no longer dirty
     let g:delphi_file_dirty=0
 endfunction
@@ -75,9 +66,8 @@ function! DisplayShowWindow()
     :redraw
 endfunction
 
-"if __delpho_show__ is currently in the buffer
-"assume it is in the right window
-"close it then
+"close the buffer with given name if it is opened
+"otherwise do nothing
 function! CloseBufIfOpen(name)
     "@http://vim.wikia.com/wiki/Easier_buffer_switching
     let bufcount = bufnr("$")
@@ -86,7 +76,6 @@ function! CloseBufIfOpen(name)
         if(bufexists(currbufnr))
             let currbufname = bufname(currbufnr)
             if(match(currbufname, a:name) > -1)
-                "echom "closing a delphi show window"
                 silent execute ":" . currbufnr . "bw"
             endif
         endif
@@ -107,9 +96,9 @@ function! DelphiEnable()
     autocmd CursorHoldI *.py :call DelphiRun()
     autocmd TextChanged *py :call DelphiMarkDirty()
     autocmd TextChangedI *py :call DelphiMarkDirty()
-    let g:bg_use_python=1
     let g:delphi_exec_limit=1000
     let g:delphi_file_dirty=1
+    
     py << EOF
 from multiprocessing import Process
 import time, os, signal, sys, vim
@@ -151,8 +140,7 @@ endfunction
 function! DelphiDisable()
     nunmap <buffer> <leader>r
     set eventignore=BufEnter,CursorHold,CursorHoldI,TextChanged,TextChangedI
-    unlet g:bg_use_python
-    unlet g:file_dirty
+    unlet g:delphi_file_dirty
     unlet g:delphi_exec_limit
 endfunction
 

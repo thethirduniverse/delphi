@@ -28,7 +28,9 @@ function! DelphiRun()
     "execute helper file
     "not working, will always show current working directory
     "let s:directory = expand('<sfile>:h')
-    :call bg#Run("~/.vim/bundle/delphi/ftplugin/python/delphi_timed_execution.o __delphi_snippet__ __delphi_show__ ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
+    ":call bg#Run("~/.vim/bundle/delphi/ftplugin/python/delehi_timed_execution.o __delphi_snippet__ __delphi_show__ 
+    ".g:delphi_exec_limit, 1, funcref#Function("DisplayShowWindow"))
+    :call DelphiTimedExecution() 
     
     "restore window, cursor, etc.
     "normal `a
@@ -60,13 +62,17 @@ endfunction
 "    return 0
 "endfunction
 
-function! DisplayShowWindow(status, file)
+function! DisplayShowWindow()
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
     "vertical split window
     rightbelow vsplit __delphi_show__
     "move cursor back to original buffer
     silent execute "normal! \<C-w>\<C-h>"
+    "somehow the above code will not make 
+    "the change to show automatically
+    "so redraw it to show
+    :redraw
 endfunction
 
 "if __delpho_show__ is currently in the buffer
@@ -96,9 +102,10 @@ function! DelphiEnable()
     autocmd TextChanged *py :call DelphiMarkDirty()
     autocmd TextChangedI *py :call DelphiMarkDirty()
     let g:bg_use_python=1
-    let g:delphi_exec_limit=1000
+    let g:delphi_exec_limit=3000
     let g:delphi_file_dirty=1
 endfunction
+
 
 function! DelphiDisable()
     nunmap <buffer> <leader>r
@@ -114,6 +121,48 @@ endfunction
 
 function! DelphiSetExecLimit(limit)
     let g:delphi_exec_limit = a:limit
+endfunction
+
+"execute the command asynchrounously
+"when execution finishes or timeout
+"it will invoke corresponding command to update
+"the result
+function! DelphiTimedExecution()
+    py << EOF
+from multiprocessing import Process
+import time, os, signal, sys
+
+outfile = None
+
+def terminate(signum, frame):
+    #vim.eval(":call displayshowwindow()")
+    global outfile
+    if outfile:
+        outfile.close()
+        outfile = None
+    os.system("vim --servername \"vim1\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
+    os._exit(0)
+
+def delphi_exec():
+    #redirect output
+    signal.signal(signal.SIGALRM, terminate)
+    signal.alarm(1)
+    global outfile
+    outfile = open("__delphi_show__","w+")
+    sys.stdout = outfile
+    sys.stderr = outfile
+    #evalutate the command in current thread
+    cmd = open("__delphi_snippet__","r").read()
+    try:
+        exec(cmd)
+    except Exception as e:
+        sys.stderr.write(e.message)
+    terminate(signal.SIGALRM, None)
+
+p = Process(target=delphi_exec,args=())
+p.start()
+
+EOF
 endfunction
 
 "plugins are load after vimrc

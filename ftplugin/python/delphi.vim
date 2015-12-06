@@ -95,6 +95,12 @@ function! CloseBufIfOpen(name)
 endfunction
 
 function! DelphiEnable()
+    let availability = DelphiCheckAvaiability()
+    if availability != 1
+        echom 'Delphi not available. Reason: ' . availability
+        return
+    endif
+    
     nnoremap <buffer> <leader>r :call DelphiRun()<cr>
     autocmd BufEnter *.py set updatetime=300
     autocmd CursorHold *.py :call DelphiRun()
@@ -166,6 +172,24 @@ function! DelphiTimedExecution()
     py << EOF
 Process(target=delphi_exec,args=()).start()
 EOF
+endfunction
+
+function! DelphiCheckAvaiability()
+    let reason = ""
+    if !has('clientserver')
+        let reason = reason . "Clientserver is not supported|"
+    endif
+    if has('clientserver') && v:servername == ''
+        let reason = reason . "Servername is empty|"
+    endif
+    if !has('python')
+        let reason = reason . "Python not supported|"
+    endif
+    if reason == ""
+        return 1
+    else
+        return reason
+    endif
 endfunction
 
 "plugins are load after vimrc

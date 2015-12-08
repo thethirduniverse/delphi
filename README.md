@@ -39,6 +39,7 @@ Delphi Depends on:
 ---
 ##Changes
 
+* Now delphi no longer requires a C wrapper file for execution. It uses the threading capability provided by python to do that.
 * Now delphi no longer requires putting code inside `#@s` and `#@e`. It will always execute the entire file.
 
 ---

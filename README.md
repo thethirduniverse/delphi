@@ -28,6 +28,7 @@ Delphi Depends on:
 
 * [Pathogen](https://github.com/tpope/vim-pathogen)
 	* don't forget to add pathogen#infect to your vimrc	
+    * for some machines, pathogen will not behave correctly if you don't explicitly set filetype. More info here: http://blog.darevay.com/2010/10/a-brief-note-on-pathogen-for-vim/
 * A vim with **client-server** and **python** function. You can check whether it does by executing `vim --version | grep "clientserver"`, if it gives you something like `+clientserver` then you are good to go. If you see `-clientserver`, then you might have to install another version.
 	* on Mac OS you can use homebrew.
 	* on Linux you can follow [this awesome guide](https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source). Starting from the *normal* version, it will have client-server feature. Besure to manually enable python as well.

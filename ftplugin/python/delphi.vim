@@ -54,6 +54,7 @@ endfunction
 "endfunction
 
 function! DisplayShowWindow()
+    :redraw
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
     "vertical split window
@@ -108,12 +109,13 @@ delphi_exec_limit = int(vim.eval("g:delphi_exec_limit"))
 delphi_outfile = None
 
 def terminate(signum, frame):
-    #vim.eval(":call displayshowwindow()")
     global delphi_outfile
     global delphi_servername
     if delphi_outfile:
         delphi_outfile.close()
         delphi_outfile = None
+    #This will not work because it is not thread safe    
+    #vim.command(":call DisplayShowWindow()")
     os.system("vim --servername \"" + delphi_servername + "\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
     os._exit(0)
 

@@ -1,8 +1,18 @@
 if !exists("g:delphi_run")
     let g:delphi_run = "delphi"
+    "toggle function
+    nnoremap <buffer> <leader>d :call DelphiToggle()<cr>
 else
     finish
 endif
+
+function! DelphiToggle()
+    if (g:delphi_enabled)
+        :call DelphiDisable()
+    else
+        :call DelphiEnable()
+    endif
+endfunction
 
 function! DelphiRun()
     "abandons if file is not dirty and not first time running
@@ -92,6 +102,7 @@ function! DelphiEnable()
     endif
     
     nnoremap <buffer> <leader>r :call DelphiRun()<cr>
+    set eventignore=""
     autocmd BufEnter *.py set updatetime=300
     autocmd CursorHold *.py :call DelphiRun()
     autocmd CursorHoldI *.py :call DelphiRun()
@@ -99,43 +110,9 @@ function! DelphiEnable()
     autocmd TextChangedI *py :call DelphiMarkDirty()
     let g:delphi_exec_limit=1000
     let g:delphi_file_dirty=1
-    
-    py << EOF
-from multiprocessing import Process
-import time, os, signal, sys, vim
-
-delphi_servername = vim.eval("v:servername")
-delphi_exec_limit = int(vim.eval("g:delphi_exec_limit"))
-delphi_outfile = None
-
-def terminate(signum, frame):
-    global delphi_outfile
-    global delphi_servername
-    if delphi_outfile:
-        delphi_outfile.close()
-        delphi_outfile = None
-    #This will not work because it is not thread safe    
-    #vim.command(":call DisplayShowWindow()")
-    os.system("vim --servername \"" + delphi_servername + "\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
-    os._exit(0)
-
-def delphi_exec():
-    global delphi_outfile
-    global delphi_exec_limit
-    #redirect output
-    signal.signal(signal.SIGALRM, terminate)
-    signal.alarm(delphi_exec_limit / 1000)
-    delphi_outfile = open("__delphi_show__","w+")
-    sys.stdout = delphi_outfile
-    sys.stderr = delphi_outfile
-    #evalutate the command in current thread
-    cmd = open("__delphi_snippet__","r").read()
-    try:
-        exec(cmd)
-    except Exception as e:
-        print e
-    terminate(signal.SIGALRM, None)
-EOF
+    let g:delphi_enabled=1
+    :call DelphiLoadPython()
+    echom "Delphi is enabled."
 endfunction
 
 
@@ -144,6 +121,8 @@ function! DelphiDisable()
     set eventignore=BufEnter,CursorHold,CursorHoldI,TextChanged,TextChangedI
     unlet g:delphi_file_dirty
     unlet g:delphi_exec_limit
+    let g:delphi_enabled=0
+    echom "Delphi is disabled."
 endfunction
 
 function! DelphiMarkDirty()
@@ -182,6 +161,48 @@ function! DelphiCheckAvaiability()
     endif
 endfunction
 
+function! DelphiLoadPython()
+    if(exists("g:delphi_python_loaded"))
+        return
+    endif
+    py << EOF
+from multiprocessing import Process
+import time, os, signal, sys, vim
+
+delphi_servername = vim.eval("v:servername")
+delphi_exec_limit = int(vim.eval("g:delphi_exec_limit"))
+delphi_outfile = None
+
+def terminate(signum, frame):
+    global delphi_outfile
+    global delphi_servername
+    if delphi_outfile:
+        delphi_outfile.close()
+        delphi_outfile = None
+    #This will not work because it is not thread safe    
+    #vim.command(":call DisplayShowWindow()")
+    os.system("vim --servername \"" + delphi_servername + "\" --remote-expr \"DisplayShowWindow()\" > /dev/null ")
+    os._exit(0)
+
+def delphi_exec():
+    global delphi_outfile
+    global delphi_exec_limit
+    #redirect output
+    signal.signal(signal.SIGALRM, terminate)
+    signal.alarm(delphi_exec_limit / 1000)
+    delphi_outfile = open("__delphi_show__","w+")
+    sys.stdout = delphi_outfile
+    sys.stderr = delphi_outfile
+    #evalutate the command in current thread
+    cmd = open("__delphi_snippet__","r").read()
+    try:
+        exec(cmd)
+    except Exception as e:
+        print e
+    terminate(signal.SIGALRM, None)
+EOF
+    let g:delphi_python_loaded=1
+endfunction
 "plugins are load after vimrc
 if exists("g:use_delphi")
     call DelphiEnable()

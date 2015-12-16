@@ -30,8 +30,6 @@ function! DelphiRun()
     let temp = @"
     normal! ggdG 
     let @" = temp
-    echom "unnamed reg"
-    echom @"
     
     "paste to helper file
     silent execute "normal! \"aP\<cr>" 
@@ -78,7 +76,7 @@ function! DisplayShowWindow()
     "if __delphi_show__ is opened currently, close it
     :call CloseBufIfOpen("__delphi_show__")
     "vertical split window
-    rightbelow vsplit __delphi_show__
+    silent rightbelow vsplit __delphi_show__
     "move cursor back to original buffer
     silent execute "normal! \<C-w>\<C-h>"
     "somehow the above code will not make 
@@ -122,7 +120,7 @@ function! DelphiEnable()
     let g:delphi_file_dirty=1
     let g:delphi_enabled=1
     :call DelphiLoadPython()
-    echom "Delphi is enabled."
+    "echom "Delphi is enabled."
 endfunction
 
 

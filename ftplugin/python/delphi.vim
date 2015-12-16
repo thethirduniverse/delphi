@@ -26,7 +26,13 @@ function! DelphiRun()
     "create helper file
     vsp __delphi_snippet__
     "delete existing content
+    "restore unnamed register
+    let temp = @"
     normal! ggdG 
+    let @" = temp
+    echom "unnamed reg"
+    echom @"
+    
     "paste to helper file
     silent execute "normal! \"aP\<cr>" 
     "write file
@@ -42,8 +48,12 @@ function! DelphiRun()
 endfunction
 
 function! YankAll()
+    "for some reason :1,2y a will save the content to both a and "
+    "so we need to manually restore the content of "
+    let temp = @"
     let lastLine = line('$')
     execute ":1,".lastLine."y a"
+    let @" = temp
 endfunction
 
 

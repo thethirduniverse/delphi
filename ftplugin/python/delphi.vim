@@ -6,15 +6,15 @@ else
     finish
 endif
 
-function! DelphiToggle()
+function! s:DelphiToggle()
     if (g:delphi_enabled)
-        :call DelphiDisable()
+        :call s:DelphiDisable()
     else
-        :call DelphiEnable()
+        :call s:DelphiEnable()
     endif
 endfunction
 
-function! DelphiRun()
+function! s:DelphiRun()
     "abandons if file is not dirty and not first time running
     if (!g:delphi_file_dirty)
         return
@@ -22,7 +22,7 @@ function! DelphiRun()
     "save cursor and window info
     let l:winview = winsaveview()
     "yank all content to register a
-    :call YankAll()
+    :call s:YankAll()
     "create helper file
     vsp __delphi_snippet__
     "delete existing content
@@ -38,14 +38,14 @@ function! DelphiRun()
     "close this new split
     :bd
     "execute helper file
-    :call DelphiTimedExecution() 
+    :call s:DelphiTimedExecution() 
     "restore window, cursor, etc.
     :call winrestview(l:winview)
     "file is no longer dirty
     let g:delphi_file_dirty=0
 endfunction
 
-function! YankAll()
+function! s:YankAll()
     "for some reason :1,2y a will save the content to both a and "
     "so we need to manually restore the content of "
     let temp = @"
@@ -71,10 +71,13 @@ endfunction
 "    return 0
 "endfunction
 
+"this function is not local because
+"it will be called from python as a
+"callback
 function! DisplayShowWindow()
     :redraw
     "if __delphi_show__ is opened currently, close it
-    :call CloseBufIfOpen("__delphi_show__")
+    :call s:CloseBufIfOpen("__delphi_show__")
     "vertical split window
     silent rightbelow vsplit __delphi_show__
     "move cursor back to original buffer
@@ -87,7 +90,7 @@ endfunction
 
 "close the buffer with given name if it is opened
 "otherwise do nothing
-function! CloseBufIfOpen(name)
+function! s:CloseBufIfOpen(name)
     "@http://vim.wikia.com/wiki/Easier_buffer_switching
     let bufcount = bufnr("$")
     let currbufnr = 1
@@ -102,29 +105,29 @@ function! CloseBufIfOpen(name)
     endwhile
 endfunction
 
-function! DelphiEnable()
-    let availability = DelphiCheckAvaiability()
+function! s:DelphiEnable()
+    let availability = s:DelphiCheckAvaiability()
     if availability != 1
         echom 'Delphi not available. Reason: ' . availability
         return
     endif
     
-    nnoremap <buffer> <leader>r :call DelphiRun()<cr>
+    nnoremap <buffer> <leader>r :call <SID>DelphiRun()<cr>
     set eventignore=""
     autocmd BufEnter *.py set updatetime=300
-    autocmd CursorHold *.py :call DelphiRun()
-    autocmd CursorHoldI *.py :call DelphiRun()
-    autocmd TextChanged *py :call DelphiMarkDirty()
-    autocmd TextChangedI *py :call DelphiMarkDirty()
+    autocmd CursorHold *.py :call <SID>DelphiRun()
+    autocmd CursorHoldI *.py :call <SID>DelphiRun()
+    autocmd TextChanged *py :call <SID>DelphiMarkDirty()
+    autocmd TextChangedI *py :call <SID>DelphiMarkDirty()
     let g:delphi_exec_limit=1000
     let g:delphi_file_dirty=1
     let g:delphi_enabled=1
-    :call DelphiLoadPython()
+    :call s:DelphiLoadPython()
     "echom "Delphi is enabled."
 endfunction
 
 
-function! DelphiDisable()
+function! s:DelphiDisable()
     nunmap <buffer> <leader>r
     set eventignore=BufEnter,CursorHold,CursorHoldI,TextChanged,TextChangedI
     unlet g:delphi_file_dirty
@@ -133,11 +136,11 @@ function! DelphiDisable()
     echom "Delphi is disabled."
 endfunction
 
-function! DelphiMarkDirty()
+function! s:DelphiMarkDirty()
     let g:delphi_file_dirty=1
 endfunction
 
-function! DelphiSetExecLimit(limit)
+function! s:DelphiSetExecLimit(limit)
     let g:delphi_exec_limit = a:limit
 endfunction
 
@@ -145,13 +148,13 @@ endfunction
 "when execution finishes or timeout
 "it will invoke corresponding command to update
 "the result
-function! DelphiTimedExecution()
+function! s:DelphiTimedExecution()
     py << EOF
 Process(target=delphi_exec,args=()).start()
 EOF
 endfunction
 
-function! DelphiCheckAvaiability()
+function! s:DelphiCheckAvaiability()
     let reason = ""
     if !has('clientserver')
         let reason = reason . "Clientserver is not supported|"
@@ -169,7 +172,7 @@ function! DelphiCheckAvaiability()
     endif
 endfunction
 
-function! DelphiLoadPython()
+function! s:DelphiLoadPython()
     if(exists("g:delphi_python_loaded"))
         return
     endif
@@ -211,7 +214,8 @@ def delphi_exec():
 EOF
     let g:delphi_python_loaded=1
 endfunction
+
 "plugins are load after vimrc
 if exists("g:use_delphi")
-    call DelphiEnable()
+    call s:DelphiEnable()
 endif

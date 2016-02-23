@@ -1,13 +1,15 @@
 if !exists("g:delphi_run")
     let g:delphi_run = "delphi"
+    let s:delphi_snippet = "/tmp/__delphi_snippet__"
+    let s:delphi_show = "/tmp/__delphi_show__"
     "toggle function
     nnoremap <buffer> <leader>d :call DelphiToggle()<cr>
 else
     finish
 endif
 
-function! s:DelphiToggle()
-    if (g:delphi_enabled)
+function! DelphiToggle()
+    if (s:delphi_enabled)
         :call s:DelphiDisable()
     else
         :call s:DelphiEnable()
@@ -16,7 +18,7 @@ endfunction
 
 function! s:DelphiRun()
     "abandons if file is not dirty and not first time running
-    if (!g:delphi_file_dirty)
+    if (!s:delphi_file_dirty)
         return
     endif
     "save cursor and window info
@@ -24,7 +26,7 @@ function! s:DelphiRun()
     "yank all content to register a
     :call s:YankAll()
     "create helper file
-    vsp __delphi_snippet__
+    exec 'vsp'. s:delphi_snippet
     "delete existing content
     "restore unnamed register
     let temp = @"
@@ -42,7 +44,7 @@ function! s:DelphiRun()
     "restore window, cursor, etc.
     :call winrestview(l:winview)
     "file is no longer dirty
-    let g:delphi_file_dirty=0
+    let s:delphi_file_dirty=0
 endfunction
 
 function! s:YankAll()
@@ -54,38 +56,21 @@ function! s:YankAll()
     let @" = temp
 endfunction
 
-
-"yanks the content between #@s and #@e, on success return 0, on failure return
-"-1
-"function! YankSelectedRange()
-"    let start = search("#@s")
-"    let end = search("#@e")
-"    if (start==0 || end==0)
-"        return -1
-"    endif
-"    if (start+1 > end-1)
-"        return -1
-"    endif
-"    "yank the file starting from start+1 to end-1
-"    execute ":".(start+1).",".(end-1)."y a"
-"    return 0
-"endfunction
-
 "this function is not local because
 "it will be called from python as a
 "callback
 function! DisplayShowWindow()
-    :redraw
+    :redraw!
     "if __delphi_show__ is opened currently, close it
-    :call s:CloseBufIfOpen("__delphi_show__")
+    :call s:CloseBufIfOpen(s:delphi_show)
     "vertical split window
-    silent rightbelow vsplit __delphi_show__
+    exec 'silent rightbelow vsplit '. s:delphi_show
     "move cursor back to original buffer
     silent execute "normal! \<C-w>\<C-h>"
     "somehow the above code will not make 
     "the change to show automatically
     "so redraw it to show
-    :redraw
+    :redraw!
 endfunction
 
 "close the buffer with given name if it is opened
@@ -120,24 +105,25 @@ function! s:DelphiEnable()
     autocmd TextChanged *py :call <SID>DelphiMarkDirty()
     autocmd TextChangedI *py :call <SID>DelphiMarkDirty()
     let g:delphi_exec_limit=1000
-    let g:delphi_file_dirty=1
-    let g:delphi_enabled=1
+    let s:delphi_file_dirty=1
+    let s:delphi_enabled=1
     :call s:DelphiLoadPython()
-    "echom "Delphi is enabled."
+    echom "Delphi is enabled."
 endfunction
 
 
 function! s:DelphiDisable()
+    :call s:CloseBufIfOpen(s:delphi_show)
     nunmap <buffer> <leader>r
     set eventignore=BufEnter,CursorHold,CursorHoldI,TextChanged,TextChangedI
-    unlet g:delphi_file_dirty
+    unlet s:delphi_file_dirty
     unlet g:delphi_exec_limit
-    let g:delphi_enabled=0
+    let s:delphi_enabled=0
     echom "Delphi is disabled."
 endfunction
 
 function! s:DelphiMarkDirty()
-    let g:delphi_file_dirty=1
+    let s:delphi_file_dirty=1
 endfunction
 
 function! s:DelphiSetExecLimit(limit)
@@ -181,6 +167,8 @@ from multiprocessing import Process
 import time, os, signal, sys, vim
 
 delphi_servername = vim.eval("v:servername")
+delphi_snippet = vim.eval("s:delphi_snippet")
+delphi_show = vim.eval("s:delphi_show")
 delphi_exec_limit = int(vim.eval("g:delphi_exec_limit"))
 delphi_outfile = None
 
@@ -198,14 +186,16 @@ def terminate(signum, frame):
 def delphi_exec():
     global delphi_outfile
     global delphi_exec_limit
+    global delphi_snippet
+    global delphi_show
     #redirect output
     signal.signal(signal.SIGALRM, terminate)
     signal.alarm(delphi_exec_limit / 1000)
-    delphi_outfile = open("__delphi_show__","w+")
+    delphi_outfile = open(delphi_show,"w+")
     sys.stdout = delphi_outfile
     sys.stderr = delphi_outfile
     #evalutate the command in current thread
-    cmd = open("__delphi_snippet__","r").read()
+    cmd = open(delphi_snippet,"r").read()
     try:
         exec(cmd)
     except Exception as e:
